@@ -6,6 +6,7 @@ Description: Automatically commits and pushes changes made via the wp-admin pane
 Version: 0.0.1
 Author: Ryan Cramer
 Author URI: https://secularcoding.com/
+License: GPLv2 or later
 */
 
 class AutoGitCommit {
@@ -17,7 +18,7 @@ class AutoGitCommit {
 	}
 
 	public static function UpgraderProcessComplete($updater, $options) {
-		$message = __CLASS__ . ' by ' . $options['type'] . ' ' . $options['action'];
+		$message = $options['type'] . ' ' . $options['action'];
 		if (isset($options['plugins']) && is_array($options['plugins']) && !empty($options['plugins'])) {
 			$message .= ' on ' . implode(' and ', array_map(function($path) {
 					return array_shift(explode('/', $path));
@@ -27,20 +28,20 @@ class AutoGitCommit {
 	}
 	
 	public static function ActivatedPlugin($plugin) {
-		self::CommitWithMessage('Automatic by activation of ' . $plugin);
+		self::CommitWithMessage('activation of ' . $plugin);
 	}
 	
 	public static function CoreUpdatedSuccessfully($wpVersion) {
-		self::CommitWithMessage('Automatic upgrade to WordPress version ' . $wpVersion);
+		self::CommitWithMessage('upgrade to WordPress version ' . $wpVersion);
 	}
 	
 	public static function GenerateAttachmentMetadata($metadata) {
-		self::CommitWithMessage('Automatic by new media uploaded');
+		self::CommitWithMessage('new media uploaded');
 		return $metadata;
 	}
 	
 	private static function CommitWithMessage($message) {
-		exec('git add -A && git commit -m ' . escapeshellarg($message) . ' && git push');
+		exec('git add -A && git commit -m ' . escapeshellarg(__CLASS__ . ' triggered by ' . $message) . ' && git push');
 	}
 }
 
